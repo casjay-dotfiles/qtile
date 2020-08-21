@@ -1,0 +1,26 @@
+# For more information about the configurations used
+# in this file, please see the Travis CI documentation.
+# .travis.yml
+# https://docs.travis-ci.com
+
+sudo: enabled
+
+install:
+  - sudo bash -c "$(curl -LSs https://github.com/dfmgr/installer/raw/master/install.sh)"
+  - sudo pkmgr init
+  - pkmgr update
+  - sudo dotfiles admin scripts
+  - dotfiles install qtile
+  - bash -c "[ -f $(command -v qtile >/dev/null 2>&1) ] && timeout --signal=9 --foreground --preserve-status 5 qtile || true"
+
+matrix:
+  include:
+    - os: linux
+      dist: bionic
+      language: bash
+      sudo: enabled
+
+notifications:
+  email:
+    on_failure: never
+    on_success: never

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+sleep 10
+xbindkeys -f $DESKTOP_SESSION_CONFDIR/scripts/xbindkeysrc
+sleep 10
+xmodmap $DESKTOP_SESSION_CONFDIR/scripts/xmodmap.MacBookPro12_1
