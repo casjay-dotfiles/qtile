@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-APPNAME="$(basename $0)"
+APPNAME="qtile"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 
@@ -8,7 +8,7 @@ HOME="${USER_HOME:-${HOME}}"
 # @Author          : Jason
 # @Contact         : casjaysdev@casjay.net
 # @File            : install.sh
-# @Created         : Wed, Aug 09, 2020, 02:00 EST
+# @Created         : Fr, Aug 28, 2020, 00:00 EST
 # @License         : WTFPL
 # @Copyright       : Copyright (c) CasjaysDev
 # @Description     : installer script for qtile
@@ -17,7 +17,7 @@ HOME="${USER_HOME:-${HOME}}"
 
 # Set functions
 
-SCRIPTSFUNCTURL="${SCRIPTSAPPFUNCTURL:-https://github.com/dfmgr/installer/raw/master/functions}"
+SCRIPTSFUNCTURL="${SCRIPTSAPPFUNCTURL:-https://github.com/casjay-dotfiles/scripts/raw/master/functions}"
 SCRIPTSFUNCTDIR="${SCRIPTSAPPFUNCTDIR:-/usr/local/share/CasjaysDev/scripts}"
 SCRIPTSFUNCTFILE="${SCRIPTSAPPFUNCTFILE:-app-installer.bash}"
 
@@ -33,6 +33,13 @@ else
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+user_installdirs
+
+# OS Support: supported_os unsupported_oses
+
+unsupported_oses MacOS Windows
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Make sure the scripts repo is installed
 
@@ -41,40 +48,40 @@ scripts_check
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Defaults
-
-APPNAME="qtile"
-PLUGNAME=""
+APPNAME="${APPNAME:-qtile}"
+APPDIR="${APPDIR:-$HOME/.config/$APPNAME}"
+REPO="${DFMGRREPO:-https://github.com/dfmgr}/${APPNAME}"
+REPORAW="${REPORAW:-$REPO/raw}"
+APPVERSION="$(curl -LSs $REPORAW/master/version.txt)"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# git repos
+# Setup plugins
 
-PLUGINREPO=""
+PLUGNAMES=""
+PLUGDIR="${SHARE:-$HOME/.local/share}/$APPNAME"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# dfmgr_install fontmgr_install iconmgr_install pkmgr_install systemmgr_install thememgr_install wallpapermgr_install
+
+dfmgr_install
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Version
-
-APPVERSION="$(curl -LSs ${DOTFILESREPO:-https://github.com/dfmgr}/$APPNAME/raw/master/version.txt)"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# if installing system wide - change to system_installdirs
-
-user_installdirs
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# Set options
-
-APPDIR="$CONF/$APPNAME"
-PLUGDIR="$SHARE/$APPNAME/${PLUGNAME:-plugins}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Script options IE: --help
 
 show_optvars "$@"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Do not update
+
+#systemmgr_noupdate
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -132,13 +139,13 @@ ensure_perms
 
 if [ -d "$APPDIR/.git" ]; then
   execute \
-    "git_update $APPDIR" \
-    "Updating $APPNAME configurations"
+  "git_update $APPDIR" \
+  "Updating $APPNAME configurations"
 else
   execute \
-    "backupapp && \
-         git_clone -q $REPO/$APPNAME $APPDIR" \
-    "Installing $APPNAME configurations"
+  "backupapp && \
+        git_clone -q $REPO/$APPNAME $APPDIR" \
+  "Installing $APPNAME configurations"
 fi
 
 # exit on fail
@@ -148,15 +155,15 @@ failexitcode
 
 # Plugins
 
-if [ "$PLUGNAME" != "" ]; then
-  if [ -d "$PLUGDIR"/.git ]; then
+if [ "$PLUGNAMES" != "" ]; then
+  if [ -d "$PLUGDIR"/PLUREP/.git ]; then
     execute \
-      "git_update $PLUGDIR" \
-      "Updating $PLUGNAME"
+    "git_update $PLUGDIR/PLUGREP" \
+    "Updating plugin PLUGNAME"
   else
     execute \
-      "git_clone $PLUGINREPO $PLUGDIR" \
-      "Installing $PLUGNAME"
+    "git_clone PLUGINREPO $PLUGDIR/PLUGREP" \
+    "Installing plugin PLUGREP"
   fi
 fi
 
@@ -168,19 +175,18 @@ failexitcode
 # run post install scripts
 
 run_postinst() {
-  run_postinst_global
-
+  dfmgr_run_post
 }
 
 execute \
-  "run_postinst" \
-  "Running post install scripts"
+"run_postinst" \
+"Running post install scripts"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # create version file
 
-install_version
+dfmgr_install_version
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
