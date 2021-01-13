@@ -285,10 +285,10 @@ fi
 
 # Session
 
-if cmd_exist xfce4-session; then
-  __kill xfce4-session
-  __start xfce4-session
-fi
+# if cmd_exist xfce4-session; then
+#   __kill xfce4-session
+#   __start xfce4-session
+# fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
