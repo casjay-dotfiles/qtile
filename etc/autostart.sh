@@ -4,7 +4,7 @@
 # @Author      : Jason
 # @Contact     : casjaysdev@casjay.net
 # @File        : autostart.sh
-# @Created     : Mon, Feb 24, 2020, 00:00 EST
+# @Created     : Thurs, Jan 21, 2021, 00:00 EST
 # @License     : WTFPL
 # @Copyright   : Copyright (c) CasjaysDev
 # @Description : autostart script for qtile
@@ -12,8 +12,6 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Set functions
-
-# Functions
 
 cmd_exist() {
   unalias "$1" >/dev/null 2>&1
@@ -30,46 +28,47 @@ __running() {
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # sudo password using dmenu
-
 if cmd_exist dmenupass; then
-  export SUDO_ASKPASS="dmenupass"
+  SUDO_ASKPASS="dmenupass"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# export desktop session
-
-export DESKTOP_SESSION="${DESKTOP_SESSION:-qtile}"
+# set desktop session
+DESKTOP_SESSION="${DESKTOP_SESSION:-qtile}"
 
 # set config dir
+DESKTOP_SESSION_CONFDIR="$HOME/.config/$DESKTOP_SESSION"
 
-export DESKTOP_SESSION_CONFDIR="$HOME/.config/$DESKTOP_SESSION"
+# set resolution
+RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"
 
-# export resolution
-
-export RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"
+# export setting
+export SUDO_ASKPASS DESKTOP_SESSION DESKTOP_SESSION_CONFDIR RESOLUTION
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # Panel - not needed for awesome qtile xmonad
-
-#if cmd_exist polybar ; then
-#    __kill polybar
-#   __start "$HOME/.config/polybar/launch.sh"
-#elif cmd_exist tint2 ; then
-#    __kill tint2
-#    __start tint2 -c "$HOME/.config/tint2/tint2rc"
-#elif cmd_exist lemonbar ; then
-#    __kill lemonbar
-#   __start "$HOME/.config/lemonbar/lemonbar.sh"
-#fi
-
+if ! __running xfce4-panel; then
+  if cmd_exist polybar; then
+    __kill polybar
+    __start "$HOME/.config/polybar/launch.sh"
+  elif cmd_exist tint2; then
+    __kill tint2
+    __start tint2 -c "$HOME/.config/tint2/tint2rc"
+  elif cmd_exist lemonbar; then
+    __kill lemonbar
+    __start "$HOME/.config/lemonbar/lemonbar.sh"
+  else
+    PANEL="none"
+  fi
+  if [ "$PANEL" = "none" ] && cmd_exist xfce4-session && cmd_exist xfce4-panel; then
+    __kill xfce4-panel
+    __start xfce4-panel
+  fi
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # setup keyboard
-
 if cmd_exist ibus-daemon; then
   __kill ibus-daemon
   __start ibus-daemon --xim -d
@@ -92,9 +91,7 @@ elif cmd_exist setxkbmap; then
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # Start window compositor
-
 if cmd_exist picom; then
   __kill picom
   __start picom -b --config "$DESKTOP_SESSION_CONFDIR/compton.conf"
@@ -104,13 +101,10 @@ elif cmd_exist compton; then
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # test for an existing bus daemon, just to be safe
-
 if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
   if cmd_exist dbus-launch; then
     dbus_args="--sh-syntax --exit-with-session"
-
     case "$DESKTOP_SESSION" in
     awesome) dbus_args+="awesome" ;;
     bspwm) dbus_args+="bspwm-session" ;;
@@ -122,24 +116,19 @@ if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
     openbox) dbus_args+="openbox-session" ;;
     *) dbus_args+="$DEFAULT_SESSION" ;;
     esac
-
     __kill dbus-launch
     __start dbus-launch "${dbus_args[*]}"
   fi
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # xsettings
-
 if cmd_exist xsettingsd; then
   __kill xsettingsd
   __start xsettingsd -c "$DESKTOP_SESSION_CONFDIR/xsettingsd.conf"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # Authentication dialog
-
 # ubuntu
 if [ -f /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 ]; then
   __kill polkit-gnome-authentication-agent-1
@@ -155,9 +144,7 @@ elif [ -f /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 ]; then
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 #Notification daemon
-
 if [ -f /usr/lib/xfce4/notifyd/xfce4-notifyd ]; then
   __kill xfce4-notifyd
   __start /usr/lib/xfce4/notifyd/xfce4-notifyd
@@ -173,15 +160,12 @@ elif cmd_exist deadd-notification-center; then
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # sleep for 10 seconds
 
 sleep 10
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # vmware tools
-
 if cmd_exist vmware-user-suid-wrapper && ! __running vmware-user-suid-wrapper; then
   __kill vmware-user-suid-wrapper
   __start vmware-user-suid-wrapper
@@ -193,9 +177,7 @@ if cmd_exist vmware-user && ! __running vmware-user; then
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # start conky
-
 if cmd_exist conky; then
   __kill conky
   __start conky -c "$DESKTOP_SESSION_CONFDIR/conky.conf"
@@ -204,39 +186,32 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Wallpaper manager
-
-if cmd_exist nitrogen; then
-  __kill nitrogen
-  __start nitrogen --restore
-elif cmd_exist feh; then
-  __kill feh
-  __start feh --bg-fill "$DESKTOP_SESSION_CONFDIR/background.jpg"
-elif cmd_exist variety; then
+if cmd_exist variety; then
   __kill variety
   __start variety
+elif cmd_exist feh; then
+  __kill feh
+  __start feh --bg-fill "${WALLPAPERS:-/home/jason/.local/share/wallpapers}/system/default.jpg"
+elif cmd_exist nitrogen; then
+  __kill nitrogen
+  __start nitrogen --restore
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # Network Manager
-
 if cmd_exist nm-applet; then
   __kill nm-applet
   __start nm-applet
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # Package Manager
-
 if cmd_exist check-for-updates; then
   __start check-for-updates
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # bluetooth
-
 if cmd_exist blueberry-tray; then
   __kill blueberry-tray
   __start blueberry-tray
@@ -246,71 +221,55 @@ elif cmd_exist blueman-applet; then
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # num lock activated
-
 if cmd_exist numlockx; then
   __kill numlockx
   __start numlockx on
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # volume
-
 if cmd_exist volumeicon; then
   __kill volumeicon
   __start volumeicon
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # clipman
-
 if cmd_exist xfce4-clipman; then
   __kill xfce4-clipman
   __start xfce4-clipman
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # PowerManagement
-
 if cmd_exist xfce4-power-manager; then
   __kill xfce4-power-manager
   __start xfce4-power-manager
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# Session
-
+# Session used if you want xfce4
 # if cmd_exist xfce4-session; then
 #   __kill xfce4-session
 #   __start xfce4-session
 # fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # Screenkey
-
 #if cmd_exist screenkey ; then
 #    __kill screenkey
 #    __start screenkey
 #fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # mpd
-
 if cmd_exist mpd && ! __running mpd; then
   __start mpd
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # transmission
-
 if cmd_exist transmission-daemon && ! __running transmission-daemon; then
   __start transmission-daemon
 elif cmd_exist transmission-gtk && ! __running transmission-gtk; then
@@ -320,20 +279,16 @@ elif cmd_exist transmission-remote-gtk && ! __running transmission-remote-gtk &&
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 # Welcome Message
-
 if cmd_exist notify-send; then
   sleep 90 && notify-send --app-name="$DESKTOP_SESSION" "Welcome $USER to $DESKTOP_SESSION Desktop" &
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+# final
 sleep 10
 unset -f cmd_exist __kill __start
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+exit 0
 ## End ##
-
-# vim: set sw=2 noai :
