@@ -48,24 +48,24 @@ export SUDO_ASKPASS DESKTOP_SESSION DESKTOP_SESSION_CONFDIR RESOLUTION
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Panel - not needed for awesome qtile xmonad
-if ! __running xfce4-panel; then
-  if cmd_exist polybar; then
-    __kill polybar
-    __start "$HOME/.config/polybar/launch.sh"
-  elif cmd_exist tint2; then
-    __kill tint2
-    __start tint2 -c "$HOME/.config/tint2/tint2rc"
-  elif cmd_exist lemonbar; then
-    __kill lemonbar
-    __start "$HOME/.config/lemonbar/lemonbar.sh"
-  else
-    PANEL="none"
-  fi
-  if [ "$PANEL" = "none" ] && cmd_exist xfce4-session && cmd_exist xfce4-panel; then
-    __kill xfce4-panel
-    __start xfce4-panel
-  fi
-fi
+# if ! __running xfce4-panel; then
+#   if cmd_exist polybar; then
+#     __kill polybar
+#     __start "$HOME/.config/polybar/launch.sh"
+#   elif cmd_exist tint2; then
+#     __kill tint2
+#     __start tint2 -c "$HOME/.config/tint2/tint2rc"
+#   elif cmd_exist lemonbar; then
+#     __kill lemonbar
+#     __start "$HOME/.config/lemonbar/lemonbar.sh"
+#   else
+#     PANEL="none"
+#   fi
+#   if [ "$PANEL" = "none" ] && cmd_exist xfce4-session && cmd_exist xfce4-panel; then
+#     __kill xfce4-panel
+#     __start xfce4-panel
+#   fi
+# fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # setup keyboard
