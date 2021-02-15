@@ -154,10 +154,7 @@ elif [ -f /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Notification daemon
-if __cmd_exist notify-daemon; then
-  __kill notify-daemon
-  __start notify-daemon
-elif [ -f /usr/lib/xfce4/notifyd/xfce4-notifyd ]; then
+if [ -f /usr/lib/xfce4/notifyd/xfce4-notifyd ]; then
   __kill xfce4-notifyd
   __start /usr/lib/xfce4/notifyd/xfce4-notifyd
 elif [ -f /usr/lib/x86_64-linux-gnu/xfce4/notifyd/xfce4-notifyd ]; then
@@ -190,7 +187,7 @@ fi
 # Wallpaper manager
 if __cmd_exist randomwallpaper; then
   __kill randomwallpaper
-  __start randomwallpaper
+  __start randomwallpaper --bg
 elif __cmd_exist variety; then
   __kill variety
   __start variety
