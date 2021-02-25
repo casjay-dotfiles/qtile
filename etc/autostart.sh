@@ -23,12 +23,14 @@ HOME="${USER_HOME:-${HOME}}"
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Help
-[[ "$1" = *help ]] && printf "%s\n" "Usage: autostart.sh" "Starts applications for qtile window manager" && exit
+[[ "$1" = *help ]] && printf "%s\n" "Usage: autostart.sh" "Starts applications for bspwm window manager" && exit
 
 # Set functions
-__running() { __pid "$1" >/dev/null 2>&1; }
-__pid() { ps -ux | grep "$1" | grep -v 'grep ' | awk '{print $2}'; }
+__pid() { ps -ux | grep " $1" | grep -v 'grep ' | awk '{print $2}' | grep ^ || return 1; }
 __kill() { __running "$1" && kill -9 "$(__pid "$1")" >/dev/null 2>&1; }
+__running() { __pid "$1" &>/dev/null && return 0 || return 1; }
+__stopped() { __pid "$1" &>/dev/null && return 1 || return 0; }
+
 __cmd_exist() {
   unalias "$1" >/dev/null 2>&1
   command -v "$1" >/dev/null 2>&1
@@ -58,28 +60,25 @@ __cmd_exist xrandr && [ -n "$DISPLAY" ] &&
 export SUDO_ASKPASS DESKTOP_SESSION DESKTOP_SESSION_CONFDIR RESOLUTION
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Panel - not needed for awesome i3 qtile xmonad
-if [ "$DESKTOP_SESSION" != "awesome" ] || [ "$DESKTOP_SESSION" != "i3" ] || [ "$DESKTOP_SESSION" != "sway" ] ||
-  [ "$DESKTOP_SESSION" != "qtile" ] || [ "$DESKTOP_SESSION" != "xmonad" ] || [ "$DESKTOP_SESSION" != "xfce4" ]; then
-  if ! __running xfce4-panel; then
-    if __cmd_exist polybar; then
-      __kill polybar
-      __start "$HOME/.config/polybar/launch.sh"
-    elif __cmd_exist tint2; then
-      __kill tint2
-      __start tint2 -c "$HOME/.config/tint2/tint2rc"
-    elif __cmd_exist lemonbar; then
-      __kill lemonbar
-      __start "$HOME/.config/lemonbar/lemonbar.sh"
-    else
-      PANEL="none"
-    fi
-    if [ "$PANEL" = "none" ] && __cmd_exist xfce4-session && __cmd_exist xfce4-panel; then
-      __kill xfce4-panel
-      __start xfce4-panel
-    fi
-  fi
-fi
+# Panel - not needed for awesome i3 qtile sway xmonad
+# if __stopped xfce4-panel; then
+#   if __cmd_exist polybar; then
+#     __kill polybar
+#     __start "$HOME/.config/polybar/launch.sh"
+#   elif __cmd_exist tint2; then
+#     __kill tint2
+#     __start tint2 -c "$HOME/.config/tint2/tint2rc"
+#   elif __cmd_exist lemonbar; then
+#     __kill lemonbar
+#     __start "$HOME/.config/lemonbar/lemonbar.sh"
+#   else
+#     PANEL="none"
+#   fi
+#   if [ "$PANEL" = "none" ] && __cmd_exist xfce4-session && __cmd_exist xfce4-panel; then
+#     __kill xfce4-panel
+#     __start xfce4-panel
+#   fi
+# fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup keyboard
 if __cmd_exist ibus-daemon; then
