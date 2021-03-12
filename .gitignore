@@ -1,1 +1,4 @@
+# Disable reminder in prompt
+ignoredirmessage
+
 __pycache__
