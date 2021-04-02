@@ -92,9 +92,9 @@ elif __cmd_exist fcitx; then
   __start fcitx
 fi
 
-if __cmd_exist sxhkd; then
+if __cmd_exist sxhkd && __cmd_exist run_sxhkd; then
   __kill sxhkd
-  __start sxhkd -c "$HOME/.config/sxhkd/sxhkdrc" -s "$HOME/.cache/sxhkd"
+  __start run_sxhkd --start
 fi
 
 if __cmd_exist setxkbmap; then
