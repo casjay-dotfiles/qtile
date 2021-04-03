@@ -192,7 +192,7 @@ elif __cmd_exist variety; then
   __start variety
 elif __cmd_exist feh; then
   __kill feh
-  __start feh --bg-fill "${WALLPAPERS:-/home/jason/.local/share/wallpapers}/system/default.jpg"
+  __start feh --bg-fill "${WALLPAPER_DIR:-$HOME/.local/share/wallpapers}/system/default.jpg"
 elif __cmd_exist nitrogen; then
   __kill nitrogen
   __start nitrogen --restore
