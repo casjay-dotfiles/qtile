@@ -78,7 +78,7 @@ show_optvars "$@"
 dfmgr_run_init
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end with a space
-APP="$APPNAME sxhkd tint2 dmenu xdo xfce4-terminal firefox "
+APP="$APPNAME sxhkd tint2 dmenu xdo xfce4-terminal firefox lxappearance qt5ct "
 PERL=""
 PYTH=""
 PIPS=""
